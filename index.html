@@ -1,125 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Revenue Charts</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.2/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.7.2/umd/Recharts.min.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
     }
-    .page-header {
-      background: #f3f4f6;
-      padding: 1rem;
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      background: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .chart-container { 
+      margin-bottom: 40px; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 8px; 
+      padding: 20px;
+      background: white;
+    }
+    .header {
       text-align: center;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #eaeaea;
     }
-    .container {
-      max-width: 1200px;
+    h1 { 
+      font-size: 28px; 
+      font-weight: bold; 
+      margin: 0 0 10px 0;
     }
-    @media print {
-      .page-break {
-        page-break-before: always;
+    h2 { 
+      font-size: 20px; 
+      font-weight: bold; 
+      margin-bottom: 15px;
+    }
+    .summary { 
+      background: #f9fafb; 
+      padding: 15px; 
+      border-radius: 8px; 
+      margin-bottom: 20px;
+    }
+    .flex { 
+      display: flex; 
+      justify-content: space-between; 
+      flex-wrap: wrap;
+    }
+    .stat { 
+      margin-bottom: 10px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .label { 
+      font-weight: 500;
+    }
+    .positive { 
+      color: #22c55e;
+    }
+    .negative { 
+      color: #ef4444;
+    }
+    @media (max-width: 768px) {
+      .stat {
+        flex: 0 0 100%;
+        margin-bottom: 10px;
+      }
+      body {
+        padding: 10px;
       }
     }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="page-header">
-    <h1 class="text-2xl font-bold">Revenue Charts Dashboard</h1>
-    <p class="text-sm text-gray-600">Q1 2024 vs. Q1 2025 Comparison</p>
-  </div>
-  <div id="root" class="container mx-auto py-8"></div>
+<body>
+  <div id="root"></div>
 
   <script type="text/babel">
-    const { 
-      BarChart, 
-      Bar, 
-      XAxis, 
-      YAxis, 
-      CartesianGrid, 
-      Tooltip, 
-      Legend, 
-      ResponsiveContainer,
-      LabelList 
-    } = Recharts;
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
 
     const RevenueCharts = () => {
       // Overall data for all segments combined
       const overallData = [
         {
           source: "Pre-Hubspot Contact",
-          revenue2024: 2058444.42, // 1576367.81 + 304921.92 + 164091.92 + 13062.77
-          revenue2025: 959921.04, // 741086.94 + 149019.65 + 57688.05 + 12126.4
+          revenue2024: 2058444.42,
+          revenue2025: 959921.04,
           change: -1098523.38,
           percentChange: -53.4
         },
         {
           source: "Client Referral",
-          revenue2024: 1289755.95, // 862158.24 + 181108.88 + 205961.73 + 40527.1
-          revenue2025: 1292424.19, // 1054530.43 + 91283.72 + 126208.34 + 20401.7
+          revenue2024: 1289755.95,
+          revenue2025: 1292424.19,
           change: 2668.24,
           percentChange: 0.2
         },
         {
           source: "Email Marketing",
-          revenue2024: 348314.27, // 137197.45 + 125466.36 + 50106.86 + 35543.6
-          revenue2025: 1005428.04, // 583451.27 + 301049.73 + 88726.31 + 32200.73
+          revenue2024: 348314.27,
+          revenue2025: 1005428.04,
           change: 657113.77,
           percentChange: 188.7
         },
         {
           source: "Google - Organic Search",
-          revenue2024: 844046.08, // 82059.23 + 412373.44 + 20511.04 + 329102.37
-          revenue2025: 1081170.21, // 191165.71 + 522492.29 + 69505.85 + 298006.36
+          revenue2024: 844046.08,
+          revenue2025: 1081170.21,
           change: 237124.13,
           percentChange: 28.1
         },
         {
           source: "Google - Paid Search",
-          revenue2024: 233007.47, // 35323.04 + 111657.71 + 12807.54 + 73219.18
-          revenue2025: 863158.31, // 205301.74 + 261685.82 + 150853.99 + 245316.76
+          revenue2024: 233007.47,
+          revenue2025: 863158.31,
           change: 630150.84,
           percentChange: 270.4
         },
         {
           source: "Event Longer Than 1 Year Ago",
-          revenue2024: 399277.8, // 306331.75 + 0 + 89566.05 + 3379.5
+          revenue2024: 399277.8,
+          revenue2025: 275894.16,
           change: -123383.64,
-          revenue2025: 275894.16, // 182445.66 + 18749.51 + 74702.99 + 0
           percentChange: -30.9
         },
         {
           source: "Event in the Past Year",
-          revenue2024: 356490.16, // 226320.78 + 0 + 124973.38 + 5196
-          revenue2025: 300620.06, // 174556.33 + 0 + 123145.33 + 2918.2
+          revenue2024: 356490.16,
+          revenue2025: 300620.06,
           change: -55870.1,
           percentChange: -15.7
         },
         {
           source: "SAGE",
-          revenue2024: 403899.83, // 374323.25 + 150.6 + 29425.98 + 0
-          revenue2025: 540870.33, // 468605.96 + 0 + 72264.37 + 0
+          revenue2024: 403899.83,
+          revenue2025: 540870.33,
           change: 136970.5,
           percentChange: 33.9
         },
         {
           source: "Direct Traffic",
-          revenue2024: 526395.33, // 66764.32 + 235434.13 + 45737.23 + 178459.65
-          revenue2025: 178451.53, // 16963.8 + 144478.33 + 4503.5 + 12505.9
+          revenue2024: 526395.33,
+          revenue2025: 178451.53,
           change: -347943.8,
           percentChange: -66.1
         },
         {
           source: "Other",
-          revenue2024: 463145.24, // All remaining sources
-          revenue2025: 584737.63, // All remaining sources
+          revenue2024: 463145.24,
+          revenue2025: 584737.63,
           change: 121592.39,
           percentChange: 26.3
         }
@@ -205,8 +242,6 @@
       const colors = {
         revenue2024: '#7C68EE', // Medium slate blue
         revenue2025: '#64DD17', // Light green
-        positive: '#4CAF50',
-        negative: '#F44336'
       };
 
       const formatCurrency = (value) => {
@@ -225,11 +260,15 @@
       };
 
       return (
-        <div className="flex flex-col space-y-12 p-4 w-full">
+        <div className="container">
+          <div className="header">
+            <h1>Revenue Charts Dashboard</h1>
+            <p>Q1 2024 vs Q1 2025 Comparison</p>
+          </div>
+          
           {/* Overall summary chart */}
-          <div className="p-6 border rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-center">Deal Source Revenue Comparison (2024 vs 2025)</h2>
-            <p className="mb-4 text-center text-gray-700">Sort by: 2025 Revenue (High to Low)</p>
+          <div className="chart-container">
+            <h2>Deal Source Revenue Comparison (2024 vs 2025)</h2>
             <ResponsiveContainer width="100%" height={500}>
               <BarChart
                 data={overallData}
@@ -273,21 +312,21 @@
           </div>
 
           {/* New Direct Business */}
-          <div className="page-break p-6 border rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-2">New Business - Direct</h2>
-            <div className="p-4 bg-gray-100 rounded-lg mb-4">
-              <div className="flex flex-wrap justify-between">
-                <div>
-                  <span className="text-lg font-medium">Total 2024: </span>
-                  <span className="text-lg">{formatCurrency(newDirectTotal.revenue2024)}</span>
+          <div className="chart-container">
+            <h2>New Business - Direct</h2>
+            <div className="summary">
+              <div className="flex">
+                <div className="stat">
+                  <span className="label">Total 2024: </span>
+                  <span>{formatCurrency(newDirectTotal.revenue2024)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Total 2025: </span>
-                  <span className="text-lg">{formatCurrency(newDirectTotal.revenue2025)}</span>
+                <div className="stat">
+                  <span className="label">Total 2025: </span>
+                  <span>{formatCurrency(newDirectTotal.revenue2025)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Change: </span>
-                  <span className={`text-lg ${newDirectTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="stat">
+                  <span className="label">Change: </span>
+                  <span className={newDirectTotal.change >= 0 ? "positive" : "negative"}>
                     {formatCurrency(newDirectTotal.change)} ({newDirectTotal.percentChange}%)
                   </span>
                 </div>
@@ -332,21 +371,21 @@
           </div>
 
           {/* Existing Direct Business */}
-          <div className="page-break p-6 border rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-2">Existing Business - Direct</h2>
-            <div className="p-4 bg-gray-100 rounded-lg mb-4">
-              <div className="flex flex-wrap justify-between">
-                <div>
-                  <span className="text-lg font-medium">Total 2024: </span>
-                  <span className="text-lg">{formatCurrency(existingDirectTotal.revenue2024)}</span>
+          <div className="chart-container">
+            <h2>Existing Business - Direct</h2>
+            <div className="summary">
+              <div className="flex">
+                <div className="stat">
+                  <span className="label">Total 2024: </span>
+                  <span>{formatCurrency(existingDirectTotal.revenue2024)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Total 2025: </span>
-                  <span className="text-lg">{formatCurrency(existingDirectTotal.revenue2025)}</span>
+                <div className="stat">
+                  <span className="label">Total 2025: </span>
+                  <span>{formatCurrency(existingDirectTotal.revenue2025)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Change: </span>
-                  <span className={`text-lg ${existingDirectTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="stat">
+                  <span className="label">Change: </span>
+                  <span className={existingDirectTotal.change >= 0 ? "positive" : "negative"}>
                     {formatCurrency(existingDirectTotal.change)} ({existingDirectTotal.percentChange}%)
                   </span>
                 </div>
@@ -391,21 +430,21 @@
           </div>
 
           {/* New Distributor Business */}
-          <div className="page-break p-6 border rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-2">New Business - Distributors</h2>
-            <div className="p-4 bg-gray-100 rounded-lg mb-4">
-              <div className="flex flex-wrap justify-between">
-                <div>
-                  <span className="text-lg font-medium">Total 2024: </span>
-                  <span className="text-lg">{formatCurrency(newDistributorTotal.revenue2024)}</span>
+          <div className="chart-container">
+            <h2>New Business - Distributors</h2>
+            <div className="summary">
+              <div className="flex">
+                <div className="stat">
+                  <span className="label">Total 2024: </span>
+                  <span>{formatCurrency(newDistributorTotal.revenue2024)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Total 2025: </span>
-                  <span className="text-lg">{formatCurrency(newDistributorTotal.revenue2025)}</span>
+                <div className="stat">
+                  <span className="label">Total 2025: </span>
+                  <span>{formatCurrency(newDistributorTotal.revenue2025)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Change: </span>
-                  <span className={`text-lg ${newDistributorTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="stat">
+                  <span className="label">Change: </span>
+                  <span className={newDistributorTotal.change >= 0 ? "positive" : "negative"}>
                     {formatCurrency(newDistributorTotal.change)} ({newDistributorTotal.percentChange}%)
                   </span>
                 </div>
@@ -450,21 +489,21 @@
           </div>
 
           {/* Existing Distributor Business */}
-          <div className="page-break p-6 border rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-2">Existing Business - Distributors</h2>
-            <div className="p-4 bg-gray-100 rounded-lg mb-4">
-              <div className="flex flex-wrap justify-between">
-                <div>
-                  <span className="text-lg font-medium">Total 2024: </span>
-                  <span className="text-lg">{formatCurrency(existingDistributorTotal.revenue2024)}</span>
+          <div className="chart-container">
+            <h2>Existing Business - Distributors</h2>
+            <div className="summary">
+              <div className="flex">
+                <div className="stat">
+                  <span className="label">Total 2024: </span>
+                  <span>{formatCurrency(existingDistributorTotal.revenue2024)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Total 2025: </span>
-                  <span className="text-lg">{formatCurrency(existingDistributorTotal.revenue2025)}</span>
+                <div className="stat">
+                  <span className="label">Total 2025: </span>
+                  <span>{formatCurrency(existingDistributorTotal.revenue2025)}</span>
                 </div>
-                <div>
-                  <span className="text-lg font-medium">Change: </span>
-                  <span className={`text-lg ${existingDistributorTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="stat">
+                  <span className="label">Change: </span>
+                  <span className={existingDistributorTotal.change >= 0 ? "positive" : "negative"}>
                     {formatCurrency(existingDistributorTotal.change)} ({existingDistributorTotal.percentChange}%)
                   </span>
                 </div>
@@ -511,11 +550,7 @@
       );
     };
 
-    // Render the component
-    ReactDOM.render(
-      <RevenueCharts />,
-      document.getElementById('root')
-    );
+    ReactDOM.render(<RevenueCharts />, document.getElementById('root'));
   </script>
 </body>
 </html>
