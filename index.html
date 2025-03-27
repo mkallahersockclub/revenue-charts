@@ -1,31 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Revenue Charts</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/recharts@2.7.2/umd/Recharts.min.js"></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
       padding: 20px;
       background: #f8f9fa;
     }
-    .container { 
-      max-width: 1200px; 
-      margin: 0 auto; 
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
       background: white;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       border-radius: 8px;
       padding: 20px;
     }
-    .chart-container { 
-      margin-bottom: 40px; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 8px; 
+    .chart-container {
+      margin-bottom: 40px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
       padding: 20px;
       background: white;
     }
@@ -35,522 +33,492 @@
       margin-bottom: 30px;
       border-bottom: 1px solid #eaeaea;
     }
-    h1 { 
-      font-size: 28px; 
-      font-weight: bold; 
+    h1 {
+      font-size: 28px;
+      font-weight: bold;
       margin: 0 0 10px 0;
     }
-    h2 { 
-      font-size: 20px; 
-      font-weight: bold; 
+    h2 {
+      font-size: 20px;
+      font-weight: bold;
       margin-bottom: 15px;
     }
-    .summary { 
-      background: #f9fafb; 
-      padding: 15px; 
-      border-radius: 8px; 
+    .summary {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
       margin-bottom: 20px;
     }
-    .flex { 
-      display: flex; 
-      justify-content: space-between; 
+    .flex {
+      display: flex;
+      justify-content: space-between;
       flex-wrap: wrap;
     }
-    .stat { 
+    .stat {
       margin-bottom: 10px;
       flex: 1;
       min-width: 200px;
     }
-    .label { 
+    .label {
       font-weight: 500;
     }
-    .positive { 
+    .positive {
       color: #22c55e;
     }
-    .negative { 
+    .negative {
       color: #ef4444;
     }
-    @media (max-width: 768px) {
-      .stat {
-        flex: 0 0 100%;
-        margin-bottom: 10px;
-      }
-      body {
-        padding: 10px;
-      }
+    canvas {
+      max-height: 500px;
+      width: 100% !important;
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="container">
+    <div class="header">
+      <h1>Revenue Charts Dashboard</h1>
+      <p>Q1 2024 vs Q1 2025 Comparison</p>
+    </div>
+    
+    <!-- Overall summary chart -->
+    <div class="chart-container">
+      <h2>Deal Source Revenue Comparison (2024 vs 2025)</h2>
+      <canvas id="overallChart"></canvas>
+    </div>
 
-  <script type="text/babel">
-    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
-
-    const RevenueCharts = () => {
-      // Overall data for all segments combined
-      const overallData = [
-        {
-          source: "Pre-Hubspot Contact",
-          revenue2024: 2058444.42,
-          revenue2025: 959921.04,
-          change: -1098523.38,
-          percentChange: -53.4
-        },
-        {
-          source: "Client Referral",
-          revenue2024: 1289755.95,
-          revenue2025: 1292424.19,
-          change: 2668.24,
-          percentChange: 0.2
-        },
-        {
-          source: "Email Marketing",
-          revenue2024: 348314.27,
-          revenue2025: 1005428.04,
-          change: 657113.77,
-          percentChange: 188.7
-        },
-        {
-          source: "Google - Organic Search",
-          revenue2024: 844046.08,
-          revenue2025: 1081170.21,
-          change: 237124.13,
-          percentChange: 28.1
-        },
-        {
-          source: "Google - Paid Search",
-          revenue2024: 233007.47,
-          revenue2025: 863158.31,
-          change: 630150.84,
-          percentChange: 270.4
-        },
-        {
-          source: "Event Longer Than 1 Year Ago",
-          revenue2024: 399277.8,
-          revenue2025: 275894.16,
-          change: -123383.64,
-          percentChange: -30.9
-        },
-        {
-          source: "Event in the Past Year",
-          revenue2024: 356490.16,
-          revenue2025: 300620.06,
-          change: -55870.1,
-          percentChange: -15.7
-        },
-        {
-          source: "SAGE",
-          revenue2024: 403899.83,
-          revenue2025: 540870.33,
-          change: 136970.5,
-          percentChange: 33.9
-        },
-        {
-          source: "Direct Traffic",
-          revenue2024: 526395.33,
-          revenue2025: 178451.53,
-          change: -347943.8,
-          percentChange: -66.1
-        },
-        {
-          source: "Other",
-          revenue2024: 463145.24,
-          revenue2025: 584737.63,
-          change: 121592.39,
-          percentChange: 26.3
-        }
-      ].sort((a, b) => b.revenue2025 - a.revenue2025);
-
-      // Data for each segment
-      const newDirectData = [
-        {source: "Google - Organic Search", revenue2024: 329102.37, revenue2025: 298006.36},
-        {source: "Google - Paid Search", revenue2024: 73219.18, revenue2025: 245316.76},
-        {source: "Direct Traffic", revenue2024: 178459.65, revenue2025: 12505.90},
-        {source: "Client Referral", revenue2024: 40527.10, revenue2025: 20401.70},
-        {source: "Email Marketing", revenue2024: 35543.60, revenue2025: 32200.73},
-        {source: "Bing - Paid", revenue2024: 0, revenue2025: 36855.88},
-        {source: "Pre-Hubspot Contact", revenue2024: 13062.77, revenue2025: 12126.40},
-        {source: "Other", revenue2024: 59658.61, revenue2025: 38702.58}
-      ].sort((a, b) => b.revenue2025 - a.revenue2025);
-
-      const existingDirectData = [
-        {source: "Google - Organic Search", revenue2024: 412373.44, revenue2025: 522492.29},
-        {source: "Email Marketing", revenue2024: 125466.36, revenue2025: 301049.73},
-        {source: "Google - Paid Search", revenue2024: 111657.71, revenue2025: 261685.82},
-        {source: "Pre-Hubspot Contact", revenue2024: 304921.92, revenue2025: 149019.65},
-        {source: "Direct Traffic", revenue2024: 235434.13, revenue2025: 144478.33},
-        {source: "Client Referral", revenue2024: 181108.88, revenue2025: 91283.72},
-        {source: "Bing - Paid", revenue2024: 0, revenue2025: 31210.31},
-        {source: "Other", revenue2024: 148967.44, revenue2025: 90454.90}
-      ].sort((a, b) => b.revenue2025 - a.revenue2025);
-
-      const newDistributorData = [
-        {source: "Google - Paid Search", revenue2024: 12807.54, revenue2025: 150853.99},
-        {source: "Client Referral", revenue2024: 205961.73, revenue2025: 126208.34},
-        {source: "Event in the Past Year", revenue2024: 124973.38, revenue2025: 123145.33},
-        {source: "Email Marketing", revenue2024: 50106.86, revenue2025: 88726.31},
-        {source: "Google - Organic Search", revenue2024: 20511.04, revenue2025: 69505.85},
-        {source: "SAGE", revenue2024: 29425.98, revenue2025: 72264.37},
-        {source: "Event Longer Than 1 Year Ago", revenue2024: 89566.05, revenue2025: 74702.99},
-        {source: "Pre-Hubspot Contact", revenue2024: 164091.92, revenue2025: 57688.05},
-        {source: "Other", revenue2024: 94463.45, revenue2025: 97987.37}
-      ].sort((a, b) => b.revenue2025 - a.revenue2025);
-
-      const existingDistributorData = [
-        {source: "Client Referral", revenue2024: 862158.24, revenue2025: 1054530.43},
-        {source: "Pre-Hubspot Contact", revenue2024: 1576367.81, revenue2025: 741086.94},
-        {source: "Email Marketing", revenue2024: 137197.45, revenue2025: 583451.27},
-        {source: "SAGE", revenue2024: 374323.25, revenue2025: 468605.96},
-        {source: "Google - Organic Search", revenue2024: 82059.23, revenue2025: 191165.71},
-        {source: "Google - Paid Search", revenue2024: 35323.04, revenue2025: 205301.74},
-        {source: "Event Longer Than 1 Year Ago", revenue2024: 306331.75, revenue2025: 182445.66},
-        {source: "Event in the Past Year", revenue2024: 226320.78, revenue2025: 174556.33},
-        {source: "Other", revenue2024: 282183.87, revenue2025: 332562.80}
-      ].sort((a, b) => b.revenue2025 - a.revenue2025);
-
-      // Total values for each segment
-      const newDirectTotal = {
-        revenue2024: 729573.28,
-        revenue2025: 696116.31,
-        change: -33456.97,
-        percentChange: -4.59
-      };
-
-      const existingDirectTotal = {
-        revenue2024: 1519929.88,
-        revenue2025: 1591674.75,
-        change: 71744.87,
-        percentChange: 4.72
-      };
-
-      const newDistributorTotal = {
-        revenue2024: 791907.95,
-        revenue2025: 861082.60,
-        change: 69174.65,
-        percentChange: 8.74
-      };
-
-      const existingDistributorTotal = {
-        revenue2024: 3882265.42,
-        revenue2025: 3933706.84,
-        change: 51441.42,
-        percentChange: 1.33
-      };
-
-      // Custom color scheme
-      const colors = {
-        revenue2024: '#7C68EE', // Medium slate blue
-        revenue2025: '#64DD17', // Light green
-      };
-
-      const formatCurrency = (value) => {
-        return `$${value.toLocaleString('en-US', {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0
-        })}`;
-      };
-
-      const formatCurrencyK = (value) => {
-        return `$${(value/1000).toFixed(1)}K`;
-      };
-
-      const formatCurrencyM = (value) => {
-        return `$${(value/1000000).toFixed(1)}M`;
-      };
-
-      return (
-        <div className="container">
-          <div className="header">
-            <h1>Revenue Charts Dashboard</h1>
-            <p>Q1 2024 vs Q1 2025 Comparison</p>
+    <!-- New Direct Business -->
+    <div class="chart-container">
+      <h2>New Business - Direct</h2>
+      <div class="summary">
+        <div class="flex">
+          <div class="stat">
+            <span class="label">Total 2024: </span>
+            <span id="newDirect2024"></span>
           </div>
-          
-          {/* Overall summary chart */}
-          <div className="chart-container">
-            <h2>Deal Source Revenue Comparison (2024 vs 2025)</h2>
-            <ResponsiveContainer width="100%" height={500}>
-              <BarChart
-                data={overallData}
-                margin={{ top: 30, right: 30, left: 70, bottom: 70 }}
-                barGap={0}
-                barSize={30}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="source" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={100} 
-                  tickMargin={5}
-                  interval={0}
-                />
-                <YAxis 
-                  tickFormatter={formatCurrencyM} 
-                  domain={[0, 'dataMax + 200000']}
-                />
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => label}
-                />
-                <Legend 
-                  verticalAlign="top"
-                  height={36}
-                />
-                <Bar 
-                  dataKey="revenue2024" 
-                  name="2024 Revenue" 
-                  fill={colors.revenue2024} 
-                />
-                <Bar 
-                  dataKey="revenue2025" 
-                  name="2025 Revenue" 
-                  fill={colors.revenue2025} 
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div class="stat">
+            <span class="label">Total 2025: </span>
+            <span id="newDirect2025"></span>
           </div>
-
-          {/* New Direct Business */}
-          <div className="chart-container">
-            <h2>New Business - Direct</h2>
-            <div className="summary">
-              <div className="flex">
-                <div className="stat">
-                  <span className="label">Total 2024: </span>
-                  <span>{formatCurrency(newDirectTotal.revenue2024)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Total 2025: </span>
-                  <span>{formatCurrency(newDirectTotal.revenue2025)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Change: </span>
-                  <span className={newDirectTotal.change >= 0 ? "positive" : "negative"}>
-                    {formatCurrency(newDirectTotal.change)} ({newDirectTotal.percentChange}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={newDirectData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-                barGap={0}
-                barSize={20}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="source" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80} 
-                  interval={0}
-                />
-                <YAxis 
-                  tickFormatter={formatCurrencyK} 
-                  domain={[0, 'dataMax + 30000']}
-                />
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => label}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="revenue2024" 
-                  name="Q1 2024" 
-                  fill={colors.revenue2024}
-                />
-                <Bar 
-                  dataKey="revenue2025" 
-                  name="Q1 2025" 
-                  fill={colors.revenue2025}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Existing Direct Business */}
-          <div className="chart-container">
-            <h2>Existing Business - Direct</h2>
-            <div className="summary">
-              <div className="flex">
-                <div className="stat">
-                  <span className="label">Total 2024: </span>
-                  <span>{formatCurrency(existingDirectTotal.revenue2024)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Total 2025: </span>
-                  <span>{formatCurrency(existingDirectTotal.revenue2025)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Change: </span>
-                  <span className={existingDirectTotal.change >= 0 ? "positive" : "negative"}>
-                    {formatCurrency(existingDirectTotal.change)} ({existingDirectTotal.percentChange}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={existingDirectData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-                barGap={0}
-                barSize={20}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="source" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80} 
-                  interval={0}
-                />
-                <YAxis 
-                  tickFormatter={formatCurrencyK} 
-                  domain={[0, 'dataMax + 50000']}
-                />
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => label}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="revenue2024" 
-                  name="Q1 2024" 
-                  fill={colors.revenue2024}
-                />
-                <Bar 
-                  dataKey="revenue2025" 
-                  name="Q1 2025" 
-                  fill={colors.revenue2025}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* New Distributor Business */}
-          <div className="chart-container">
-            <h2>New Business - Distributors</h2>
-            <div className="summary">
-              <div className="flex">
-                <div className="stat">
-                  <span className="label">Total 2024: </span>
-                  <span>{formatCurrency(newDistributorTotal.revenue2024)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Total 2025: </span>
-                  <span>{formatCurrency(newDistributorTotal.revenue2025)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Change: </span>
-                  <span className={newDistributorTotal.change >= 0 ? "positive" : "negative"}>
-                    {formatCurrency(newDistributorTotal.change)} ({newDistributorTotal.percentChange}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={newDistributorData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-                barGap={0}
-                barSize={20}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="source" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80} 
-                  interval={0}
-                />
-                <YAxis 
-                  tickFormatter={formatCurrencyK} 
-                  domain={[0, 'dataMax + 30000']}
-                />
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => label}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="revenue2024" 
-                  name="Q1 2024" 
-                  fill={colors.revenue2024}
-                />
-                <Bar 
-                  dataKey="revenue2025" 
-                  name="Q1 2025" 
-                  fill={colors.revenue2025}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Existing Distributor Business */}
-          <div className="chart-container">
-            <h2>Existing Business - Distributors</h2>
-            <div className="summary">
-              <div className="flex">
-                <div className="stat">
-                  <span className="label">Total 2024: </span>
-                  <span>{formatCurrency(existingDistributorTotal.revenue2024)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Total 2025: </span>
-                  <span>{formatCurrency(existingDistributorTotal.revenue2025)}</span>
-                </div>
-                <div className="stat">
-                  <span className="label">Change: </span>
-                  <span className={existingDistributorTotal.change >= 0 ? "positive" : "negative"}>
-                    {formatCurrency(existingDistributorTotal.change)} ({existingDistributorTotal.percentChange}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={existingDistributorData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-                barGap={0}
-                barSize={20}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis 
-                  dataKey="source" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80} 
-                  interval={0}
-                />
-                <YAxis 
-                  tickFormatter={formatCurrencyK} 
-                  domain={[0, 'dataMax + 100000']}
-                />
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => label}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="revenue2024" 
-                  name="Q1 2024" 
-                  fill={colors.revenue2024}
-                />
-                <Bar 
-                  dataKey="revenue2025" 
-                  name="Q1 2025" 
-                  fill={colors.revenue2025}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div class="stat">
+            <span class="label">Change: </span>
+            <span id="newDirectChange"></span>
           </div>
         </div>
-      );
+      </div>
+      <canvas id="newDirectChart"></canvas>
+    </div>
+
+    <!-- Existing Direct Business -->
+    <div class="chart-container">
+      <h2>Existing Business - Direct</h2>
+      <div class="summary">
+        <div class="flex">
+          <div class="stat">
+            <span class="label">Total 2024: </span>
+            <span id="existingDirect2024"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Total 2025: </span>
+            <span id="existingDirect2025"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Change: </span>
+            <span id="existingDirectChange"></span>
+          </div>
+        </div>
+      </div>
+      <canvas id="existingDirectChart"></canvas>
+    </div>
+
+    <!-- New Distributor Business -->
+    <div class="chart-container">
+      <h2>New Business - Distributors</h2>
+      <div class="summary">
+        <div class="flex">
+          <div class="stat">
+            <span class="label">Total 2024: </span>
+            <span id="newDistributor2024"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Total 2025: </span>
+            <span id="newDistributor2025"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Change: </span>
+            <span id="newDistributorChange"></span>
+          </div>
+        </div>
+      </div>
+      <canvas id="newDistributorChart"></canvas>
+    </div>
+
+    <!-- Existing Distributor Business -->
+    <div class="chart-container">
+      <h2>Existing Business - Distributors</h2>
+      <div class="summary">
+        <div class="flex">
+          <div class="stat">
+            <span class="label">Total 2024: </span>
+            <span id="existingDistributor2024"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Total 2025: </span>
+            <span id="existingDistributor2025"></span>
+          </div>
+          <div class="stat">
+            <span class="label">Change: </span>
+            <span id="existingDistributorChange"></span>
+          </div>
+        </div>
+      </div>
+      <canvas id="existingDistributorChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Format currency functions
+    function formatCurrency(value) {
+      return '$' + value.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    function formatCurrencyK(value) {
+      return '$' + (value / 1000).toFixed(1) + 'K';
+    }
+
+    // Overall data for all segments combined
+    const overallData = [
+      {
+        source: "Pre-Hubspot Contact",
+        revenue2024: 2058444.42,
+        revenue2025: 959921.04,
+        change: -1098523.38,
+        percentChange: -53.4
+      },
+      {
+        source: "Client Referral",
+        revenue2024: 1289755.95,
+        revenue2025: 1292424.19,
+        change: 2668.24,
+        percentChange: 0.2
+      },
+      {
+        source: "Email Marketing",
+        revenue2024: 348314.27,
+        revenue2025: 1005428.04,
+        change: 657113.77,
+        percentChange: 188.7
+      },
+      {
+        source: "Google - Organic Search",
+        revenue2024: 844046.08,
+        revenue2025: 1081170.21,
+        change: 237124.13,
+        percentChange: 28.1
+      },
+      {
+        source: "Google - Paid Search",
+        revenue2024: 233007.47,
+        revenue2025: 863158.31,
+        change: 630150.84,
+        percentChange: 270.4
+      },
+      {
+        source: "Event Longer Than 1 Year Ago",
+        revenue2024: 399277.8,
+        revenue2025: 275894.16,
+        change: -123383.64,
+        percentChange: -30.9
+      },
+      {
+        source: "Event in the Past Year",
+        revenue2024: 356490.16,
+        revenue2025: 300620.06,
+        change: -55870.1,
+        percentChange: -15.7
+      },
+      {
+        source: "SAGE",
+        revenue2024: 403899.83,
+        revenue2025: 540870.33,
+        change: 136970.5,
+        percentChange: 33.9
+      },
+      {
+        source: "Direct Traffic",
+        revenue2024: 526395.33,
+        revenue2025: 178451.53,
+        change: -347943.8,
+        percentChange: -66.1
+      },
+      {
+        source: "Other",
+        revenue2024: 463145.24,
+        revenue2025: 584737.63,
+        change: 121592.39,
+        percentChange: 26.3
+      }
+    ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+    // Data for each segment
+    const newDirectData = [
+      {source: "Google - Organic Search", revenue2024: 329102.37, revenue2025: 298006.36},
+      {source: "Google - Paid Search", revenue2024: 73219.18, revenue2025: 245316.76},
+      {source: "Direct Traffic", revenue2024: 178459.65, revenue2025: 12505.90},
+      {source: "Client Referral", revenue2024: 40527.10, revenue2025: 20401.70},
+      {source: "Email Marketing", revenue2024: 35543.60, revenue2025: 32200.73},
+      {source: "Bing - Paid", revenue2024: 0, revenue2025: 36855.88},
+      {source: "Pre-Hubspot Contact", revenue2024: 13062.77, revenue2025: 12126.40},
+      {source: "Other", revenue2024: 59658.61, revenue2025: 38702.58}
+    ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+    const existingDirectData = [
+      {source: "Google - Organic Search", revenue2024: 412373.44, revenue2025: 522492.29},
+      {source: "Email Marketing", revenue2024: 125466.36, revenue2025: 301049.73},
+      {source: "Google - Paid Search", revenue2024: 111657.71, revenue2025: 261685.82},
+      {source: "Pre-Hubspot Contact", revenue2024: 304921.92, revenue2025: 149019.65},
+      {source: "Direct Traffic", revenue2024: 235434.13, revenue2025: 144478.33},
+      {source: "Client Referral", revenue2024: 181108.88, revenue2025: 91283.72},
+      {source: "Bing - Paid", revenue2024: 0, revenue2025: 31210.31},
+      {source: "Other", revenue2024: 148967.44, revenue2025: 90454.90}
+    ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+    const newDistributorData = [
+      {source: "Google - Paid Search", revenue2024: 12807.54, revenue2025: 150853.99},
+      {source: "Client Referral", revenue2024: 205961.73, revenue2025: 126208.34},
+      {source: "Event in the Past Year", revenue2024: 124973.38, revenue2025: 123145.33},
+      {source: "Email Marketing", revenue2024: 50106.86, revenue2025: 88726.31},
+      {source: "Google - Organic Search", revenue2024: 20511.04, revenue2025: 69505.85},
+      {source: "SAGE", revenue2024: 29425.98, revenue2025: 72264.37},
+      {source: "Event Longer Than 1 Year Ago", revenue2024: 89566.05, revenue2025: 74702.99},
+      {source: "Pre-Hubspot Contact", revenue2024: 164091.92, revenue2025: 57688.05},
+      {source: "Other", revenue2024: 94463.45, revenue2025: 97987.37}
+    ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+    const existingDistributorData = [
+      {source: "Client Referral", revenue2024: 862158.24, revenue2025: 1054530.43},
+      {source: "Pre-Hubspot Contact", revenue2024: 1576367.81, revenue2025: 741086.94},
+      {source: "Email Marketing", revenue2024: 137197.45, revenue2025: 583451.27},
+      {source: "SAGE", revenue2024: 374323.25, revenue2025: 468605.96},
+      {source: "Google - Organic Search", revenue2024: 82059.23, revenue2025: 191165.71},
+      {source: "Google - Paid Search", revenue2024: 35323.04, revenue2025: 205301.74},
+      {source: "Event Longer Than 1 Year Ago", revenue2024: 306331.75, revenue2025: 182445.66},
+      {source: "Event in the Past Year", revenue2024: 226320.78, revenue2025: 174556.33},
+      {source: "Other", revenue2024: 282183.87, revenue2025: 332562.80}
+    ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+    // Total values for each segment
+    const newDirectTotal = {
+      revenue2024: 729573.28,
+      revenue2025: 696116.31,
+      change: -33456.97,
+      percentChange: -4.59
     };
 
-    ReactDOM.render(<RevenueCharts />, document.getElementById('root'));
+    const existingDirectTotal = {
+      revenue2024: 1519929.88,
+      revenue2025: 1591674.75,
+      change: 71744.87,
+      percentChange: 4.72
+    };
+
+    const newDistributorTotal = {
+      revenue2024: 791907.95,
+      revenue2025: 861082.60,
+      change: 69174.65,
+      percentChange: 8.74
+    };
+
+    const existingDistributorTotal = {
+      revenue2024: 3882265.42,
+      revenue2025: 3933706.84,
+      change: 51441.42,
+      percentChange: 1.33
+    };
+
+    // Custom color scheme
+    const colors = {
+      revenue2024: '#7C68EE', // Medium slate blue
+      revenue2025: '#64DD17', // Light green
+    };
+
+    // Set up summary data
+    document.getElementById('newDirect2024').textContent = formatCurrency(newDirectTotal.revenue2024);
+    document.getElementById('newDirect2025').textContent = formatCurrency(newDirectTotal.revenue2025);
+    document.getElementById('newDirectChange').textContent = 
+      formatCurrency(newDirectTotal.change) + ' (' + newDirectTotal.percentChange + '%)';
+    document.getElementById('newDirectChange').className = newDirectTotal.change >= 0 ? 'positive' : 'negative';
+
+    document.getElementById('existingDirect2024').textContent = formatCurrency(existingDirectTotal.revenue2024);
+    document.getElementById('existingDirect2025').textContent = formatCurrency(existingDirectTotal.revenue2025);
+    document.getElementById('existingDirectChange').textContent = 
+      formatCurrency(existingDirectTotal.change) + ' (' + existingDirectTotal.percentChange + '%)';
+    document.getElementById('existingDirectChange').className = existingDirectTotal.change >= 0 ? 'positive' : 'negative';
+
+    document.getElementById('newDistributor2024').textContent = formatCurrency(newDistributorTotal.revenue2024);
+    document.getElementById('newDistributor2025').textContent = formatCurrency(newDistributorTotal.revenue2025);
+    document.getElementById('newDistributorChange').textContent = 
+      formatCurrency(newDistributorTotal.change) + ' (' + newDistributorTotal.percentChange + '%)';
+    document.getElementById('newDistributorChange').className = newDistributorTotal.change >= 0 ? 'positive' : 'negative';
+
+    document.getElementById('existingDistributor2024').textContent = formatCurrency(existingDistributorTotal.revenue2024);
+    document.getElementById('existingDistributor2025').textContent = formatCurrency(existingDistributorTotal.revenue2025);
+    document.getElementById('existingDistributorChange').textContent = 
+      formatCurrency(existingDistributorTotal.change) + ' (' + existingDistributorTotal.percentChange + '%)';
+    document.getElementById('existingDistributorChange').className = existingDistributorTotal.change >= 0 ? 'positive' : 'negative';
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + formatCurrency(context.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45
+          }
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    };
+
+    // Create the charts
+    // Overall chart
+    new Chart(
+      document.getElementById('overallChart'),
+      {
+        type: 'bar',
+        data: {
+          labels: overallData.map(item => item.source),
+          datasets: [
+            {
+              label: '2024 Revenue',
+              data: overallData.map(item => item.revenue2024),
+              backgroundColor: colors.revenue2024
+            },
+            {
+              label: '2025 Revenue',
+              data: overallData.map(item => item.revenue2025),
+              backgroundColor: colors.revenue2025
+            }
+          ]
+        },
+        options: chartOptions
+      }
+    );
+
+    // New Direct chart
+    new Chart(
+      document.getElementById('newDirectChart'),
+      {
+        type: 'bar',
+        data: {
+          labels: newDirectData.map(item => item.source),
+          datasets: [
+            {
+              label: 'Q1 2024',
+              data: newDirectData.map(item => item.revenue2024),
+              backgroundColor: colors.revenue2024
+            },
+            {
+              label: 'Q1 2025',
+              data: newDirectData.map(item => item.revenue2025),
+              backgroundColor: colors.revenue2025
+            }
+          ]
+        },
+        options: chartOptions
+      }
+    );
+
+    // Existing Direct chart
+    new Chart(
+      document.getElementById('existingDirectChart'),
+      {
+        type: 'bar',
+        data: {
+          labels: existingDirectData.map(item => item.source),
+          datasets: [
+            {
+              label: 'Q1 2024',
+              data: existingDirectData.map(item => item.revenue2024),
+              backgroundColor: colors.revenue2024
+            },
+            {
+              label: 'Q1 2025',
+              data: existingDirectData.map(item => item.revenue2025),
+              backgroundColor: colors.revenue2025
+            }
+          ]
+        },
+        options: chartOptions
+      }
+    );
+
+    // New Distributor chart
+    new Chart(
+      document.getElementById('newDistributorChart'),
+      {
+        type: 'bar',
+        data: {
+          labels: newDistributorData.map(item => item.source),
+          datasets: [
+            {
+              label: 'Q1 2024',
+              data: newDistributorData.map(item => item.revenue2024),
+              backgroundColor: colors.revenue2024
+            },
+            {
+              label: 'Q1 2025',
+              data: newDistributorData.map(item => item.revenue2025),
+              backgroundColor: colors.revenue2025
+            }
+          ]
+        },
+        options: chartOptions
+      }
+    );
+
+    // Existing Distributor chart
+    new Chart(
+      document.getElementById('existingDistributorChart'),
+      {
+        type: 'bar',
+        data: {
+          labels: existingDistributorData.map(item => item.source),
+          datasets: [
+            {
+              label: 'Q1 2024',
+              data: existingDistributorData.map(item => item.revenue2024),
+              backgroundColor: colors.revenue2024
+            },
+            {
+              label: 'Q1 2025',
+              data: existingDistributorData.map(item => item.revenue2025),
+              backgroundColor: colors.revenue2025
+            }
+          ]
+        },
+        options: chartOptions
+      }
+    );
   </script>
 </body>
 </html>
