@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revenue Charts</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .page-header {
+      background: #f3f4f6;
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .container {
+      max-width: 1200px;
+    }
+    @media print {
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="page-header">
+    <h1 class="text-2xl font-bold">Revenue Charts Dashboard</h1>
+    <p class="text-sm text-gray-600">Q1 2024 vs. Q1 2025 Comparison</p>
+  </div>
+  <div id="root" class="container mx-auto py-8"></div>
+
+  <script type="text/babel">
+    const { 
+      BarChart, 
+      Bar, 
+      XAxis, 
+      YAxis, 
+      CartesianGrid, 
+      Tooltip, 
+      Legend, 
+      ResponsiveContainer,
+      LabelList 
+    } = Recharts;
+
+    const RevenueCharts = () => {
+      // Overall data for all segments combined
+      const overallData = [
+        {
+          source: "Pre-Hubspot Contact",
+          revenue2024: 2058444.42, // 1576367.81 + 304921.92 + 164091.92 + 13062.77
+          revenue2025: 959921.04, // 741086.94 + 149019.65 + 57688.05 + 12126.4
+          change: -1098523.38,
+          percentChange: -53.4
+        },
+        {
+          source: "Client Referral",
+          revenue2024: 1289755.95, // 862158.24 + 181108.88 + 205961.73 + 40527.1
+          revenue2025: 1292424.19, // 1054530.43 + 91283.72 + 126208.34 + 20401.7
+          change: 2668.24,
+          percentChange: 0.2
+        },
+        {
+          source: "Email Marketing",
+          revenue2024: 348314.27, // 137197.45 + 125466.36 + 50106.86 + 35543.6
+          revenue2025: 1005428.04, // 583451.27 + 301049.73 + 88726.31 + 32200.73
+          change: 657113.77,
+          percentChange: 188.7
+        },
+        {
+          source: "Google - Organic Search",
+          revenue2024: 844046.08, // 82059.23 + 412373.44 + 20511.04 + 329102.37
+          revenue2025: 1081170.21, // 191165.71 + 522492.29 + 69505.85 + 298006.36
+          change: 237124.13,
+          percentChange: 28.1
+        },
+        {
+          source: "Google - Paid Search",
+          revenue2024: 233007.47, // 35323.04 + 111657.71 + 12807.54 + 73219.18
+          revenue2025: 863158.31, // 205301.74 + 261685.82 + 150853.99 + 245316.76
+          change: 630150.84,
+          percentChange: 270.4
+        },
+        {
+          source: "Event Longer Than 1 Year Ago",
+          revenue2024: 399277.8, // 306331.75 + 0 + 89566.05 + 3379.5
+          change: -123383.64,
+          revenue2025: 275894.16, // 182445.66 + 18749.51 + 74702.99 + 0
+          percentChange: -30.9
+        },
+        {
+          source: "Event in the Past Year",
+          revenue2024: 356490.16, // 226320.78 + 0 + 124973.38 + 5196
+          revenue2025: 300620.06, // 174556.33 + 0 + 123145.33 + 2918.2
+          change: -55870.1,
+          percentChange: -15.7
+        },
+        {
+          source: "SAGE",
+          revenue2024: 403899.83, // 374323.25 + 150.6 + 29425.98 + 0
+          revenue2025: 540870.33, // 468605.96 + 0 + 72264.37 + 0
+          change: 136970.5,
+          percentChange: 33.9
+        },
+        {
+          source: "Direct Traffic",
+          revenue2024: 526395.33, // 66764.32 + 235434.13 + 45737.23 + 178459.65
+          revenue2025: 178451.53, // 16963.8 + 144478.33 + 4503.5 + 12505.9
+          change: -347943.8,
+          percentChange: -66.1
+        },
+        {
+          source: "Other",
+          revenue2024: 463145.24, // All remaining sources
+          revenue2025: 584737.63, // All remaining sources
+          change: 121592.39,
+          percentChange: 26.3
+        }
+      ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+      // Data for each segment
+      const newDirectData = [
+        {source: "Google - Organic Search", revenue2024: 329102.37, revenue2025: 298006.36},
+        {source: "Google - Paid Search", revenue2024: 73219.18, revenue2025: 245316.76},
+        {source: "Direct Traffic", revenue2024: 178459.65, revenue2025: 12505.90},
+        {source: "Client Referral", revenue2024: 40527.10, revenue2025: 20401.70},
+        {source: "Email Marketing", revenue2024: 35543.60, revenue2025: 32200.73},
+        {source: "Bing - Paid", revenue2024: 0, revenue2025: 36855.88},
+        {source: "Pre-Hubspot Contact", revenue2024: 13062.77, revenue2025: 12126.40},
+        {source: "Other", revenue2024: 59658.61, revenue2025: 38702.58}
+      ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+      const existingDirectData = [
+        {source: "Google - Organic Search", revenue2024: 412373.44, revenue2025: 522492.29},
+        {source: "Email Marketing", revenue2024: 125466.36, revenue2025: 301049.73},
+        {source: "Google - Paid Search", revenue2024: 111657.71, revenue2025: 261685.82},
+        {source: "Pre-Hubspot Contact", revenue2024: 304921.92, revenue2025: 149019.65},
+        {source: "Direct Traffic", revenue2024: 235434.13, revenue2025: 144478.33},
+        {source: "Client Referral", revenue2024: 181108.88, revenue2025: 91283.72},
+        {source: "Bing - Paid", revenue2024: 0, revenue2025: 31210.31},
+        {source: "Other", revenue2024: 148967.44, revenue2025: 90454.90}
+      ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+      const newDistributorData = [
+        {source: "Google - Paid Search", revenue2024: 12807.54, revenue2025: 150853.99},
+        {source: "Client Referral", revenue2024: 205961.73, revenue2025: 126208.34},
+        {source: "Event in the Past Year", revenue2024: 124973.38, revenue2025: 123145.33},
+        {source: "Email Marketing", revenue2024: 50106.86, revenue2025: 88726.31},
+        {source: "Google - Organic Search", revenue2024: 20511.04, revenue2025: 69505.85},
+        {source: "SAGE", revenue2024: 29425.98, revenue2025: 72264.37},
+        {source: "Event Longer Than 1 Year Ago", revenue2024: 89566.05, revenue2025: 74702.99},
+        {source: "Pre-Hubspot Contact", revenue2024: 164091.92, revenue2025: 57688.05},
+        {source: "Other", revenue2024: 94463.45, revenue2025: 97987.37}
+      ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+      const existingDistributorData = [
+        {source: "Client Referral", revenue2024: 862158.24, revenue2025: 1054530.43},
+        {source: "Pre-Hubspot Contact", revenue2024: 1576367.81, revenue2025: 741086.94},
+        {source: "Email Marketing", revenue2024: 137197.45, revenue2025: 583451.27},
+        {source: "SAGE", revenue2024: 374323.25, revenue2025: 468605.96},
+        {source: "Google - Organic Search", revenue2024: 82059.23, revenue2025: 191165.71},
+        {source: "Google - Paid Search", revenue2024: 35323.04, revenue2025: 205301.74},
+        {source: "Event Longer Than 1 Year Ago", revenue2024: 306331.75, revenue2025: 182445.66},
+        {source: "Event in the Past Year", revenue2024: 226320.78, revenue2025: 174556.33},
+        {source: "Other", revenue2024: 282183.87, revenue2025: 332562.80}
+      ].sort((a, b) => b.revenue2025 - a.revenue2025);
+
+      // Total values for each segment
+      const newDirectTotal = {
+        revenue2024: 729573.28,
+        revenue2025: 696116.31,
+        change: -33456.97,
+        percentChange: -4.59
+      };
+
+      const existingDirectTotal = {
+        revenue2024: 1519929.88,
+        revenue2025: 1591674.75,
+        change: 71744.87,
+        percentChange: 4.72
+      };
+
+      const newDistributorTotal = {
+        revenue2024: 791907.95,
+        revenue2025: 861082.60,
+        change: 69174.65,
+        percentChange: 8.74
+      };
+
+      const existingDistributorTotal = {
+        revenue2024: 3882265.42,
+        revenue2025: 3933706.84,
+        change: 51441.42,
+        percentChange: 1.33
+      };
+
+      // Custom color scheme
+      const colors = {
+        revenue2024: '#7C68EE', // Medium slate blue
+        revenue2025: '#64DD17', // Light green
+        positive: '#4CAF50',
+        negative: '#F44336'
+      };
+
+      const formatCurrency = (value) => {
+        return `$${value.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        })}`;
+      };
+
+      const formatCurrencyK = (value) => {
+        return `$${(value/1000).toFixed(1)}K`;
+      };
+
+      const formatCurrencyM = (value) => {
+        return `$${(value/1000000).toFixed(1)}M`;
+      };
+
+      return (
+        <div className="flex flex-col space-y-12 p-4 w-full">
+          {/* Overall summary chart */}
+          <div className="p-6 border rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4 text-center">Deal Source Revenue Comparison (2024 vs 2025)</h2>
+            <p className="mb-4 text-center text-gray-700">Sort by: 2025 Revenue (High to Low)</p>
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart
+                data={overallData}
+                margin={{ top: 30, right: 30, left: 70, bottom: 70 }}
+                barGap={0}
+                barSize={30}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="source" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={100} 
+                  tickMargin={5}
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrencyM} 
+                  domain={[0, 'dataMax + 200000']}
+                />
+                <Tooltip 
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(label) => label}
+                />
+                <Legend 
+                  verticalAlign="top"
+                  height={36}
+                />
+                <Bar 
+                  dataKey="revenue2024" 
+                  name="2024 Revenue" 
+                  fill={colors.revenue2024} 
+                />
+                <Bar 
+                  dataKey="revenue2025" 
+                  name="2025 Revenue" 
+                  fill={colors.revenue2025} 
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* New Direct Business */}
+          <div className="page-break p-6 border rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-2">New Business - Direct</h2>
+            <div className="p-4 bg-gray-100 rounded-lg mb-4">
+              <div className="flex flex-wrap justify-between">
+                <div>
+                  <span className="text-lg font-medium">Total 2024: </span>
+                  <span className="text-lg">{formatCurrency(newDirectTotal.revenue2024)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Total 2025: </span>
+                  <span className="text-lg">{formatCurrency(newDirectTotal.revenue2025)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Change: </span>
+                  <span className={`text-lg ${newDirectTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(newDirectTotal.change)} ({newDirectTotal.percentChange}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={newDirectData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                barGap={0}
+                barSize={20}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="source" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80} 
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrencyK} 
+                  domain={[0, 'dataMax + 30000']}
+                />
+                <Tooltip 
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(label) => label}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="revenue2024" 
+                  name="Q1 2024" 
+                  fill={colors.revenue2024}
+                />
+                <Bar 
+                  dataKey="revenue2025" 
+                  name="Q1 2025" 
+                  fill={colors.revenue2025}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Existing Direct Business */}
+          <div className="page-break p-6 border rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-2">Existing Business - Direct</h2>
+            <div className="p-4 bg-gray-100 rounded-lg mb-4">
+              <div className="flex flex-wrap justify-between">
+                <div>
+                  <span className="text-lg font-medium">Total 2024: </span>
+                  <span className="text-lg">{formatCurrency(existingDirectTotal.revenue2024)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Total 2025: </span>
+                  <span className="text-lg">{formatCurrency(existingDirectTotal.revenue2025)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Change: </span>
+                  <span className={`text-lg ${existingDirectTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(existingDirectTotal.change)} ({existingDirectTotal.percentChange}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={existingDirectData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                barGap={0}
+                barSize={20}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="source" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80} 
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrencyK} 
+                  domain={[0, 'dataMax + 50000']}
+                />
+                <Tooltip 
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(label) => label}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="revenue2024" 
+                  name="Q1 2024" 
+                  fill={colors.revenue2024}
+                />
+                <Bar 
+                  dataKey="revenue2025" 
+                  name="Q1 2025" 
+                  fill={colors.revenue2025}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* New Distributor Business */}
+          <div className="page-break p-6 border rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-2">New Business - Distributors</h2>
+            <div className="p-4 bg-gray-100 rounded-lg mb-4">
+              <div className="flex flex-wrap justify-between">
+                <div>
+                  <span className="text-lg font-medium">Total 2024: </span>
+                  <span className="text-lg">{formatCurrency(newDistributorTotal.revenue2024)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Total 2025: </span>
+                  <span className="text-lg">{formatCurrency(newDistributorTotal.revenue2025)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Change: </span>
+                  <span className={`text-lg ${newDistributorTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(newDistributorTotal.change)} ({newDistributorTotal.percentChange}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={newDistributorData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                barGap={0}
+                barSize={20}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="source" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80} 
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrencyK} 
+                  domain={[0, 'dataMax + 30000']}
+                />
+                <Tooltip 
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(label) => label}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="revenue2024" 
+                  name="Q1 2024" 
+                  fill={colors.revenue2024}
+                />
+                <Bar 
+                  dataKey="revenue2025" 
+                  name="Q1 2025" 
+                  fill={colors.revenue2025}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Existing Distributor Business */}
+          <div className="page-break p-6 border rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-2">Existing Business - Distributors</h2>
+            <div className="p-4 bg-gray-100 rounded-lg mb-4">
+              <div className="flex flex-wrap justify-between">
+                <div>
+                  <span className="text-lg font-medium">Total 2024: </span>
+                  <span className="text-lg">{formatCurrency(existingDistributorTotal.revenue2024)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Total 2025: </span>
+                  <span className="text-lg">{formatCurrency(existingDistributorTotal.revenue2025)}</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">Change: </span>
+                  <span className={`text-lg ${existingDistributorTotal.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(existingDistributorTotal.change)} ({existingDistributorTotal.percentChange}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={existingDistributorData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                barGap={0}
+                barSize={20}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="source" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80} 
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={formatCurrencyK} 
+                  domain={[0, 'dataMax + 100000']}
+                />
+                <Tooltip 
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(label) => label}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="revenue2024" 
+                  name="Q1 2024" 
+                  fill={colors.revenue2024}
+                />
+                <Bar 
+                  dataKey="revenue2025" 
+                  name="Q1 2025" 
+                  fill={colors.revenue2025}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the component
+    ReactDOM.render(
+      <RevenueCharts />,
+      document.getElementById('root')
+    );
+  </script>
+</body>
+</html>
