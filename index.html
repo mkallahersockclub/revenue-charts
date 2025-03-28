@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Revenue Charts</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -263,7 +263,7 @@
       }
     ].sort((a, b) => b.revenue2025 - a.revenue2025);
 
-    // Data for each segment
+    // Data for New Direct Business segment
     const newDirectData = [
       {source: "Google - Organic Search", revenue2024: 329102.37, revenue2025: 298006.36},
       {source: "Google - Paid Search", revenue2024: 73219.18, revenue2025: 245316.76},
@@ -275,6 +275,7 @@
       {source: "Other", revenue2024: 59658.61, revenue2025: 38702.58}
     ].sort((a, b) => b.revenue2025 - a.revenue2025);
 
+    // Data for Existing Direct Business segment
     const existingDirectData = [
       {source: "Google - Organic Search", revenue2024: 412373.44, revenue2025: 522492.29},
       {source: "Email Marketing", revenue2024: 125466.36, revenue2025: 301049.73},
@@ -286,6 +287,8 @@
       {source: "Other", revenue2024: 148967.44, revenue2025: 90454.90}
     ].sort((a, b) => b.revenue2025 - a.revenue2025);
 
+    // Data for New Distributor Business segment
+    // Extracting Direct Traffic from Other where needed
     const newDistributorData = [
       {source: "Google - Paid Search", revenue2024: 12807.54, revenue2025: 150853.99},
       {source: "Client Referral", revenue2024: 205961.73, revenue2025: 126208.34},
@@ -295,9 +298,12 @@
       {source: "SAGE", revenue2024: 29425.98, revenue2025: 72264.37},
       {source: "Event Longer Than 1 Year Ago", revenue2024: 89566.05, revenue2025: 74702.99},
       {source: "Pre-Hubspot Contact", revenue2024: 164091.92, revenue2025: 57688.05},
-      {source: "Other", revenue2024: 94463.45, revenue2025: 97987.37}
+      {source: "Direct Traffic", revenue2024: 45737.23, revenue2025: 4503.50},
+      {source: "Other", revenue2024: 48726.22, revenue2025: 93483.87}
     ].sort((a, b) => b.revenue2025 - a.revenue2025);
 
+    // Data for Existing Distributor Business segment
+    // Extracting Direct Traffic from Other where needed
     const existingDistributorData = [
       {source: "Client Referral", revenue2024: 862158.24, revenue2025: 1054530.43},
       {source: "Pre-Hubspot Contact", revenue2024: 1576367.81, revenue2025: 741086.94},
@@ -307,7 +313,8 @@
       {source: "Google - Paid Search", revenue2024: 35323.04, revenue2025: 205301.74},
       {source: "Event Longer Than 1 Year Ago", revenue2024: 306331.75, revenue2025: 182445.66},
       {source: "Event in the Past Year", revenue2024: 226320.78, revenue2025: 174556.33},
-      {source: "Other", revenue2024: 282183.87, revenue2025: 332562.80}
+      {source: "Direct Traffic", revenue2024: 66764.32, revenue2025: 16963.80},
+      {source: "Other", revenue2024: 215419.55, revenue2025: 315599.00}
     ].sort((a, b) => b.revenue2025 - a.revenue2025);
 
     // Total values for each segment
@@ -349,25 +356,25 @@
     document.getElementById('newDirect2024').textContent = formatCurrency(newDirectTotal.revenue2024);
     document.getElementById('newDirect2025').textContent = formatCurrency(newDirectTotal.revenue2025);
     document.getElementById('newDirectChange').textContent = 
-      formatCurrency(newDirectTotal.change) + ' (' + newDirectTotal.percentChange + '%)';
+      formatCurrency(newDirectTotal.change) + ' (' + newDirectTotal.percentChange.toFixed(2) + '%)';
     document.getElementById('newDirectChange').className = newDirectTotal.change >= 0 ? 'positive' : 'negative';
 
     document.getElementById('existingDirect2024').textContent = formatCurrency(existingDirectTotal.revenue2024);
     document.getElementById('existingDirect2025').textContent = formatCurrency(existingDirectTotal.revenue2025);
     document.getElementById('existingDirectChange').textContent = 
-      formatCurrency(existingDirectTotal.change) + ' (' + existingDirectTotal.percentChange + '%)';
+      formatCurrency(existingDirectTotal.change) + ' (' + existingDirectTotal.percentChange.toFixed(2) + '%)';
     document.getElementById('existingDirectChange').className = existingDirectTotal.change >= 0 ? 'positive' : 'negative';
 
     document.getElementById('newDistributor2024').textContent = formatCurrency(newDistributorTotal.revenue2024);
     document.getElementById('newDistributor2025').textContent = formatCurrency(newDistributorTotal.revenue2025);
     document.getElementById('newDistributorChange').textContent = 
-      formatCurrency(newDistributorTotal.change) + ' (' + newDistributorTotal.percentChange + '%)';
+      formatCurrency(newDistributorTotal.change) + ' (' + newDistributorTotal.percentChange.toFixed(2) + '%)';
     document.getElementById('newDistributorChange').className = newDistributorTotal.change >= 0 ? 'positive' : 'negative';
 
     document.getElementById('existingDistributor2024').textContent = formatCurrency(existingDistributorTotal.revenue2024);
     document.getElementById('existingDistributor2025').textContent = formatCurrency(existingDistributorTotal.revenue2025);
     document.getElementById('existingDistributorChange').textContent = 
-      formatCurrency(existingDistributorTotal.change) + ' (' + existingDistributorTotal.percentChange + '%)';
+      formatCurrency(existingDistributorTotal.change) + ' (' + existingDistributorTotal.percentChange.toFixed(2) + '%)';
     document.getElementById('existingDistributorChange').className = existingDistributorTotal.change >= 0 ? 'positive' : 'negative';
 
     // Chart options
